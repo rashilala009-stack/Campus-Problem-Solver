@@ -1,0 +1,6 @@
+uploads/*
+!uploads/.gitkeep
+
+xampp/
+*.log
+.DS_Store

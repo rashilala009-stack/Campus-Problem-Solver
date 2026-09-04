@@ -1,0 +1,140 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Report an Issue | Campus Problem Solver</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header>
+
+        <h1>Campus Problem Solver</h1>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="login.html">Login</a>
+            <a href="register.html">Register</a>
+        </nav>
+
+    </header>
+
+
+    <main>
+
+        <section>
+
+            <h2>Report a Campus Issue</h2>
+
+            <p>
+                Help improve your campus by reporting a problem.
+            </p>
+
+
+            <form action="php/submit_issue.php" method="POST" enctype="multipart/form-data">
+
+                <label for="title">Problem Title</label>
+
+                <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    placeholder="Example: Wi-Fi not working in Lab 2"
+                    required
+                >
+
+
+                <label for="category">Category</label>
+
+                <select id="category" name="category" required>
+
+                    <option value="">Select a category</option>
+
+                    <option value="electricity">Electricity</option>
+                    <option value="wifi">Wi-Fi</option>
+                    <option value="water">Water</option>
+                    <option value="cleanliness">Cleanliness</option>
+                    <option value="classroom">Classroom</option>
+                    <option value="library">Library</option>
+                    <option value="canteen">Canteen</option>
+                    <option value="parking">Parking</option>
+                    <option value="hostel">Hostel</option>
+                    <option value="other">Other</option>
+
+                </select>
+
+
+                <label for="location">Location</label>
+
+                <input
+                    type="text"
+                    id="location"
+                    name="location"
+                    placeholder="Example: Computer Lab 2"
+                    required
+                >
+
+
+                <label for="description">Describe the Problem</label>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="6"
+                    placeholder="Explain the problem in detail..."
+                    required
+                ></textarea>
+
+
+                <label for="photo">Upload Photo</label>
+
+                <input
+                    type="file"
+                    id="photo"
+                    name="photo"
+                    accept="image/*"
+                >
+
+
+                <div>
+
+                    <input
+                        type="checkbox"
+                        id="anonymous"
+                        name="anonymous"
+                    >
+
+                    <label for="anonymous">
+                        Submit this report anonymously
+                    </label>
+
+                </div>
+
+
+                <button type="submit">
+                    Submit Issue
+                </button>
+
+            </form>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        <p>© 2026 Campus Problem Solver</p>
+
+    </footer>
+
+</body>
+
+</html>
+```
