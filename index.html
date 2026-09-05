@@ -11,7 +11,6 @@
 
     <header>
         <h1>Campus Problem Solver</h1>
-        <p>Report. Vote. Resolve.</p>
 
         <nav>
             <a href="index.html">Home</a>
@@ -22,7 +21,7 @@
 
     <main>
 
-        <section>
+        <section class="hero">
             <h2>Make Your Campus Better</h2>
 
             <p>
@@ -31,29 +30,31 @@
             </p>
 
             <button onclick="location.href='report.html'">
-    Report an Issue
-</button>
+                Report an Issue
+            </button>
 
             <button onclick="location.href='dashboard.php'">
                 View Issues
             </button>
         </section>
 
-        <section>
+        <section class="categories">
             <h2>Report Categories</h2>
 
-            <ul>
-                <li>Electricity</li>
-                <li>Wi-Fi</li>
-                <li>Water</li>
-                <li>Cleanliness</li>
-                <li>Classroom</li>
-                <li>Library</li>
-                <li>Canteen</li>
-                <li>Parking</li>
-                <li>Hostel</li>
-                <li>Other</li>
-            </ul>
+            <div class="category-grid">
+
+                <div class="category-card">Electricity</div>
+                <div class="category-card">Wi-Fi</div>
+                <div class="category-card">Water</div>
+                <div class="category-card">Cleanliness</div>
+                <div class="category-card">Classroom</div>
+                <div class="category-card">Library</div>
+                <div class="category-card">Canteen</div>
+                <div class="category-card">Parking</div>
+                <div class="category-card">Hostel</div>
+                <div class="category-card">Other</div>
+
+            </div>
         </section>
 
     </main>

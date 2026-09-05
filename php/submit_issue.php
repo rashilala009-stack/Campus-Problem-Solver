@@ -1,55 +1,123 @@
 <?php
 
 session_start();
-
 require "db.php";
 
+/* Check whether the user is logged in */
 if (!isset($_SESSION["user_id"])) {
     header("Location: ../login.html");
     exit;
 }
 
-$user_id = $_SESSION["user_id"];
+$user_id = (int) $_SESSION["user_id"];
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+/* Only allow POST requests */
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    header("Location: ../report.html");
+    exit;
+}
 
-    $title = trim($_POST["title"]);
-    $category = trim($_POST["category"]);
-    $location = trim($_POST["location"]);
-    $description = trim($_POST["description"]);
+/* Get and validate form data */
+$title = trim($_POST["title"] ?? "");
+$category = trim($_POST["category"] ?? "");
+$location = trim($_POST["location"] ?? "");
+$description = trim($_POST["description"] ?? "");
+$anonymous = isset($_POST["anonymous"]) ? 1 : 0;
 
-    $anonymous = isset($_POST["anonymous"]) ? 1 : 0;
+/* Required-field validation */
+if ($title === "" || $category === "" || $location === "" || $description === "") {
+    die("Please fill in all required fields.");
+}
 
-    $photoName = null;
+/* Length validation */
+if (mb_strlen($title) > 255) {
+    die("Issue title is too long.");
+}
 
-    // Handle photo upload
-    if (isset($_FILES["photo"]) && $_FILES["photo"]["error"] === 0) {
+if (mb_strlen($category) > 100) {
+    die("Category is too long.");
+}
 
-        $fileName = $_FILES["photo"]["name"];
-        $tmpName = $_FILES["photo"]["tmp_name"];
+if (mb_strlen($location) > 255) {
+    die("Location is too long.");
+}
 
-        $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+if (mb_strlen($description) > 5000) {
+    die("Description is too long.");
+}
 
-        $allowedExtensions = ["jpg", "jpeg", "png", "webp"];
+$photoName = null;
 
-        if (in_array($extension, $allowedExtensions)) {
+/* Secure image upload handling */
+if (isset($_FILES["photo"]) && $_FILES["photo"]["error"] !== UPLOAD_ERR_NO_FILE) {
 
-            $photoName = uniqid("issue_", true) . "." . $extension;
+    /* Check upload error */
+    if ($_FILES["photo"]["error"] !== UPLOAD_ERR_OK) {
+        die("There was a problem uploading the image.");
+    }
 
-            $uploadPath = "../uploads/" . $photoName;
+    /* Maximum file size: 5 MB */
+    $maxFileSize = 5 * 1024 * 1024;
 
-            move_uploaded_file($tmpName, $uploadPath);
+    if ($_FILES["photo"]["size"] > $maxFileSize) {
+        die("Image size must be 5 MB or less.");
+    }
+
+    $tmpName = $_FILES["photo"]["tmp_name"];
+
+    /* Verify that the uploaded file is actually an image */
+    $imageInfo = getimagesize($tmpName);
+
+    if ($imageInfo === false) {
+        die("Only valid image files are allowed.");
+    }
+
+    /* Allow only specific image MIME types */
+    $allowedMimeTypes = [
+        "image/jpeg" => "jpg",
+        "image/png"  => "png",
+        "image/webp" => "webp"
+    ];
+
+    $mimeType = $imageInfo["mime"];
+
+    if (!isset($allowedMimeTypes[$mimeType])) {
+        die("Only JPG, PNG, and WEBP images are allowed.");
+    }
+
+    /* Generate a safe unique filename */
+    $extension = $allowedMimeTypes[$mimeType];
+    $photoName = bin2hex(random_bytes(16)) . "." . $extension;
+
+    /* Make sure upload directory exists */
+    $uploadDirectory = "../uploads/";
+
+    if (!is_dir($uploadDirectory)) {
+        if (!mkdir($uploadDirectory, 0755, true)) {
+            die("Unable to create upload directory.");
         }
     }
 
-    // Insert issue into database
-    $sql = "INSERT INTO issues 
+    $uploadPath = $uploadDirectory . $photoName;
+
+    /* Move uploaded file */
+    if (!move_uploaded_file($tmpName, $uploadPath)) {
+        die("Unable to save the uploaded image.");
+    }
+}
+
+/* Insert issue using prepared statement */
+$sql = "INSERT INTO issues
         (user_id, title, category, location, description, photo, anonymous)
         VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-    $stmt = $conn->prepare($sql);
+$stmt = $conn->prepare($sql);
 
-    $stmt->bind_param(
+if (!$stmt) {
+    die("Unable to process the request.");
+}
+
+$stmt->bind_param(
     "isssssi",
     $user_id,
     $title,
@@ -60,23 +128,42 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $anonymous
 );
 
-    if ($stmt->execute()) {
+/* Save issue */
+if ($stmt->execute()) {
 
-        echo "<h2>Issue submitted successfully!</h2>";
-        echo "<p>Your complaint has been recorded.</p>";
-        echo '<a href="../index.html">Back to Home</a>';
+    $stmt->close();
+    $conn->close();
 
-    } else {
+    echo "<!DOCTYPE html>";
+    echo "<html lang='en'>";
+    echo "<head>";
+    echo "<meta charset='UTF-8'>";
+    echo "<meta name='viewport' content='width=device-width, initial-scale=1.0'>";
+    echo "<title>Issue Submitted</title>";
+    echo "</head>";
+    echo "<body>";
+    echo "<h2>Issue submitted successfully!</h2>";
+    echo "<p>Your complaint has been recorded.</p>";
+    echo "<a href='../dashboard.php'>Go to Dashboard</a>";
+    echo "</body>";
+    echo "</html>";
 
-        echo "Error: " . $stmt->error;
+    exit;
+
+} else {
+
+    /* Remove uploaded image if database insertion fails */
+    if ($photoName !== null) {
+        $uploadedFile = "../uploads/" . $photoName;
+
+        if (file_exists($uploadedFile)) {
+            unlink($uploadedFile);
+        }
     }
 
     $stmt->close();
     $conn->close();
 
-} else {
-
-    echo "Invalid request.";
+    die("Unable to submit the issue. Please try again.");
 }
-
 ?>

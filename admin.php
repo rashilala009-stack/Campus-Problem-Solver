@@ -14,8 +14,25 @@ if ($_SESSION["user_role"] !== "admin") {
 }
 
 $sql = "SELECT * FROM issues ORDER BY votes DESC, created_at DESC";
-
 $result = $conn->query($sql);
+
+$total_result = $conn->query("SELECT COUNT(*) AS total FROM issues");
+$total_issues = $total_result->fetch_assoc()["total"];
+
+$pending_result = $conn->query(
+    "SELECT COUNT(*) AS total FROM issues WHERE status = 'Pending'"
+);
+$pending_issues = $pending_result->fetch_assoc()["total"];
+
+$progress_result = $conn->query(
+    "SELECT COUNT(*) AS total FROM issues WHERE status = 'In Progress'"
+);
+$progress_issues = $progress_result->fetch_assoc()["total"];
+
+$resolved_result = $conn->query(
+    "SELECT COUNT(*) AS total FROM issues WHERE status = 'Resolved'"
+);
+$resolved_issues = $resolved_result->fetch_assoc()["total"];
 
 ?>
 
@@ -47,97 +64,158 @@ $result = $conn->query($sql);
 
 </header>
 
-<main class="form-container">
+<main class="admin-dashboard">
 
-    <h2>Admin Panel</h2>
+    <section class="admin-header">
 
-    <p style="text-align:center;">
-        Manage and monitor campus issues
-    </p>
+        <h2>Admin Panel</h2>
 
-    <?php if ($result->num_rows === 0): ?>
-
-        <p style="text-align:center;">
-            No issues have been reported yet.
+        <p>
+            Manage and monitor reported campus issues.
         </p>
 
-    <?php else: ?>
+    </section>
 
-        <?php while ($issue = $result->fetch_assoc()): ?>
+    <section class="admin-summary">
 
-            <div class="issue-card">
+        <div class="summary-card">
+            <h3><?php echo $total_issues; ?></h3>
+            <p>Total Issues</p>
+        </div>
 
-                <h3>
-                    <?php echo htmlspecialchars($issue["title"]); ?>
-                </h3>
+        <div class="summary-card">
+            <h3><?php echo $pending_issues; ?></h3>
+            <p>Pending</p>
+        </div>
 
-                <p>
-                    <strong>Category:</strong>
-                    <?php echo htmlspecialchars($issue["category"]); ?>
-                </p>
+        <div class="summary-card">
+            <h3><?php echo $progress_issues; ?></h3>
+            <p>In Progress</p>
+        </div>
 
-                <p>
-                    <strong>Location:</strong>
-                    <?php echo htmlspecialchars($issue["location"]); ?>
-                </p>
+        <div class="summary-card">
+            <h3><?php echo $resolved_issues; ?></h3>
+            <p>Resolved</p>
+        </div>
 
-                <p>
-                    <strong>Description:</strong>
-                    <?php echo htmlspecialchars($issue["description"]); ?>
-                </p>
+    </section>
 
-                <p>
-                    <strong>Status:</strong>
-                    <?php echo htmlspecialchars($issue["status"]); ?>
-                </p>
-                <form action="php/update_status.php" method="POST">
+    <section class="admin-issues">
 
-    <input
-        type="hidden"
-        name="issue_id"
-        value="<?php echo (int)$issue["id"]; ?>"
-    >
+        <h2>Reported Issues</h2>
 
-    <select name="status" required>
+        <?php if ($result->num_rows === 0): ?>
 
-        <option value="Pending"
-            <?php if ($issue["status"] === "Pending") echo "selected"; ?>>
-            Pending
-        </option>
+            <div class="no-issues">
 
-        <option value="In Progress"
-            <?php if ($issue["status"] === "In Progress") echo "selected"; ?>>
-            In Progress
-        </option>
-
-        <option value="Resolved"
-            <?php if ($issue["status"] === "Resolved") echo "selected"; ?>>
-            Resolved
-        </option>
-
-    </select>
-
-    <button type="submit">
-        Update Status
-    </button>
-
-</form>
+                <h3>No issues have been reported yet.</h3>
 
                 <p>
-                    <strong>Votes:</strong>
-                    <?php echo (int)$issue["votes"]; ?>
-                </p>
-
-                <p>
-                    <strong>Reported:</strong>
-                    <?php echo htmlspecialchars($issue["created_at"]); ?>
+                    New campus reports will appear here.
                 </p>
 
             </div>
 
-        <?php endwhile; ?>
+        <?php else: ?>
 
-    <?php endif; ?>
+            <?php while ($issue = $result->fetch_assoc()): ?>
+
+                <div class="admin-issue-card">
+
+                    <div class="admin-issue-top">
+
+                        <div>
+
+                            <span class="category">
+                                <?php echo htmlspecialchars($issue["category"]); ?>
+                            </span>
+
+                            <h3>
+                                <?php echo htmlspecialchars($issue["title"]); ?>
+                            </h3>
+
+                        </div>
+
+                        <div class="admin-votes">
+                            👍 <?php echo (int)$issue["votes"]; ?> votes
+                        </div>
+
+                    </div>
+
+                    <div class="admin-issue-details">
+
+                        <p>
+                            <strong>📍 Location:</strong>
+                            <?php echo htmlspecialchars($issue["location"]); ?>
+                        </p>
+
+                        <p>
+                            <strong>Description:</strong><br>
+                            <?php echo nl2br(htmlspecialchars($issue["description"])); ?>
+                        </p>
+
+                        <p>
+                            <strong>Current Status:</strong>
+                            <span class="status">
+                                <?php echo htmlspecialchars($issue["status"]); ?>
+                            </span>
+                        </p>
+
+                        <p class="reported-date">
+                            <strong>Reported:</strong>
+                            <?php echo htmlspecialchars($issue["created_at"]); ?>
+                        </p>
+
+                    </div>
+
+                    <form action="php/update_status.php" method="POST" class="status-form">
+
+                        <input
+                            type="hidden"
+                            name="issue_id"
+                            value="<?php echo (int)$issue["id"]; ?>"
+                        >
+
+                        <label for="status-<?php echo (int)$issue["id"]; ?>">
+                            Update Status
+                        </label>
+
+                        <select
+                            id="status-<?php echo (int)$issue["id"]; ?>"
+                            name="status"
+                            required
+                        >
+
+                            <option value="Pending"
+                                <?php if ($issue["status"] === "Pending") echo "selected"; ?>>
+                                Pending
+                            </option>
+
+                            <option value="In Progress"
+                                <?php if ($issue["status"] === "In Progress") echo "selected"; ?>>
+                                In Progress
+                            </option>
+
+                            <option value="Resolved"
+                                <?php if ($issue["status"] === "Resolved") echo "selected"; ?>>
+                                Resolved
+                            </option>
+
+                        </select>
+
+                        <button type="submit">
+                            Update Status
+                        </button>
+
+                    </form>
+
+                </div>
+
+            <?php endwhile; ?>
+
+        <?php endif; ?>
+
+    </section>
 
 </main>
 
@@ -148,6 +226,7 @@ $result = $conn->query($sql);
 </footer>
 
 </body>
+
 </html>
 
 <?php

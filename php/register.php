@@ -1,64 +1,117 @@
 <?php
 
+session_start();
 require "db.php";
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+/* Only allow POST requests */
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    header("Location: ../register.html");
+    exit;
+}
 
-    $name = trim($_POST["name"]);
-    $email = trim($_POST["email"]);
-    $password = $_POST["password"];
+/* Get form data */
+$name = trim($_POST["name"] ?? "");
+$email = trim($_POST["email"] ?? "");
+$password = $_POST["password"] ?? "";
 
-    // Check if email already exists
-    $check = $conn->prepare("SELECT id FROM users WHERE email = ?");
-    $check->bind_param("s", $email);
-    $check->execute();
-    $check->store_result();
+/* Validate required fields */
+if ($name === "" || $email === "" || $password === "") {
+    die("Please fill in all required fields.");
+}
 
-    if ($check->num_rows > 0) {
+/* Validate name */
+if (mb_strlen($name) < 2 || mb_strlen($name) > 100) {
+    die("Name must be between 2 and 100 characters.");
+}
 
-        echo "<h2>Email already registered!</h2>";
-        echo '<a href="../register.html">Try another email</a>';
+/* Validate email */
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    die("Please enter a valid email address.");
+}
 
-        $check->close();
-        $conn->close();
-        exit;
-    }
+if (mb_strlen($email) > 150) {
+    die("Email address is too long.");
+}
 
-    $check->close();
+/* Validate password */
+if (strlen($password) < 8) {
+    die("Password must be at least 8 characters long.");
+}
 
-    // Securely hash password
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+if (strlen($password) > 72) {
+    die("Password is too long.");
+}
 
-    // Insert user
-    $sql = "INSERT INTO users (name, email, password)
-            VALUES (?, ?, ?)";
+/* Check whether email already exists */
+$checkSql = "SELECT id FROM users WHERE email = ? LIMIT 1";
+$checkStmt = $conn->prepare($checkSql);
 
-    $stmt = $conn->prepare($sql);
+if (!$checkStmt) {
+    die("Unable to process registration.");
+}
 
-    $stmt->bind_param(
-        "sss",
-        $name,
-        $email,
-        $hashedPassword
-    );
+$checkStmt->bind_param("s", $email);
+$checkStmt->execute();
 
-    if ($stmt->execute()) {
+$checkResult = $checkStmt->get_result();
 
-        echo "<h2>Registration successful!</h2>";
-        echo "<p>Your student account has been created.</p>";
-        echo '<a href="../login.html">Login Now</a>';
+if ($checkResult->num_rows > 0) {
+    $checkStmt->close();
+    $conn->close();
+    die("An account with this email already exists.");
+}
 
-    } else {
+$checkStmt->close();
 
-        echo "Registration failed: " . $stmt->error;
-    }
+/* Securely hash the password */
+$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+if ($hashedPassword === false) {
+    $conn->close();
+    die("Unable to secure the password.");
+}
+
+/* Create the student account */
+$sql = "INSERT INTO users (name, email, password, role)
+        VALUES (?, ?, ?, 'student')";
+
+$stmt = $conn->prepare($sql);
+
+if (!$stmt) {
+    $conn->close();
+    die("Unable to process registration.");
+}
+
+$stmt->bind_param("sss", $name, $email, $hashedPassword);
+
+/* Save account */
+if ($stmt->execute()) {
 
     $stmt->close();
     $conn->close();
 
+    echo "<!DOCTYPE html>";
+    echo "<html lang='en'>";
+    echo "<head>";
+    echo "<meta charset='UTF-8'>";
+    echo "<meta name='viewport' content='width=device-width, initial-scale=1.0'>";
+    echo "<title>Registration Successful</title>";
+    echo "</head>";
+    echo "<body>";
+    echo "<h2>Registration successful!</h2>";
+    echo "<p>Your student account has been created.</p>";
+    echo "<a href='../login.html'>Go to Login</a>";
+    echo "</body>";
+    echo "</html>";
+
+    exit;
+
 } else {
 
-    echo "Invalid request.";
+    $stmt->close();
+    $conn->close();
+
+    die("Unable to create account. Please try again.");
 }
 
 ?>

@@ -1,77 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Student Login | Campus Problem Solver</title>
-
+    <title>Student Login - Campus Problem Solver</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
-<header>
+    <header>
+        <h1>Campus Problem Solver</h1>
 
-    <h1>Campus Problem Solver</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="login.html">Login</a>
+            <a href="register.html">Register</a>
+        </nav>
+    </header>
 
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="register.html">Register</a>
-    </nav>
+    <main>
 
-</header>
+        <section class="form-container">
 
+            <h2>Student Login</h2>
 
-<main class="form-container">
+            <form action="php/login.php" method="POST">
 
-    <h2>Student Login</h2>
+                <label for="email">Email</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    required
+                >
 
-    <form action="php/login.php" method="POST">
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required
+                >
 
-        <label for="email">Email</label>
+                <button type="submit">Login</button>
 
-        <input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="Enter your email"
-            required
-        >
+            </form>
 
+            <p style="text-align: center; margin-top: 20px;">
+                Don't have an account?
+                <a href="register.html">Create an account</a>
+            </p>
 
-        <label for="password">Password</label>
+        </section>
 
-        <input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="Enter your password"
-            required
-        >
+    </main>
 
-
-        <button type="submit">
-            Login
-        </button>
-
-    </form>
-
-    <p>
-        Don't have an account?
-        <a href="register.html">Register here</a>
-    </p>
-
-</main>
-
-
-<footer>
-
-    <p>© 2026 Campus Problem Solver</p>
-
-</footer>
+    <footer>
+        <p>© 2026 Campus Problem Solver</p>
+    </footer>
 
 </body>
-
 </html>

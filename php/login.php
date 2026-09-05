@@ -1,58 +1,79 @@
 <?php
 
 session_start();
-
 require "db.php";
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+/* Only allow POST requests */
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    header("Location: ../login.html");
+    exit;
+}
 
-    $email = trim($_POST["email"]);
-    $password = $_POST["password"];
+/* Get form data */
+$email = trim($_POST["email"] ?? "");
+$password = $_POST["password"] ?? "";
 
-    // Find user by email
-    $stmt = $conn->prepare(
-        "SELECT id, name, password, role FROM users WHERE email = ?"
-    );
+/* Validate input */
+if ($email === "" || $password === "") {
+    die("Please enter both email and password.");
+}
 
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    die("Please enter a valid email address.");
+}
 
-    $result = $stmt->get_result();
+/* Find user */
+$sql = "SELECT id, name, email, password, role
+        FROM users
+        WHERE email = ?
+        LIMIT 1";
 
-    if ($result->num_rows === 1) {
+$stmt = $conn->prepare($sql);
 
-        $user = $result->fetch_assoc();
+if (!$stmt) {
+    die("Unable to process login.");
+}
 
-        // Verify password
-        if (password_verify($password, $user["password"])) {
+$stmt->bind_param("s", $email);
+$stmt->execute();
 
-    $_SESSION["user_id"] = $user["id"];
-    $_SESSION["user_name"] = $user["name"];
-    $_SESSION["user_email"] = $email;
-    $_SESSION["user_role"] = $user["role"];
+$result = $stmt->get_result();
 
-    echo "<h2>Login successful!</h2>";
-            echo "<p>Welcome, " . htmlspecialchars($user["name"]) . "!</p>";
-            echo '<a href="../dashboard.php">Go to Dashboard</a>';
-
-        } else {
-
-            echo "<h2>Incorrect password!</h2>";
-            echo '<a href="../login.html">Try again</a>';
-        }
-
-    } else {
-
-        echo "<h2>Account not found!</h2>";
-        echo '<a href="../register.html">Create an account</a>';
-    }
-
+if ($result->num_rows !== 1) {
     $stmt->close();
     $conn->close();
-
-} else {
-
-    echo "Invalid request.";
+    die("Invalid email or password.");
 }
+
+$user = $result->fetch_assoc();
+
+/* Verify password */
+if (!password_verify($password, $user["password"])) {
+    $stmt->close();
+    $conn->close();
+    die("Invalid email or password.");
+}
+
+/* Prevent session fixation */
+session_regenerate_id(true);
+
+/* Store session information */
+$_SESSION["user_id"] = (int) $user["id"];
+$_SESSION["user_name"] = $user["name"];
+$_SESSION["user_email"] = $user["email"];
+$_SESSION["user_role"] = $user["role"];
+
+/* Close database connection */
+$stmt->close();
+$conn->close();
+
+/* Redirect based on role */
+if ($user["role"] === "admin") {
+    header("Location: ../admin.php");
+    exit;
+}
+
+header("Location: ../dashboard.php");
+exit;
 
 ?>
