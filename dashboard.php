@@ -3,6 +3,20 @@
 session_start();
 
 require "php/db.php";
+if (isset($_GET["voted"])) {
+
+    if ($_GET["voted"] === "success") {
+        echo "<p style='text-align:center; color:green; font-weight:bold;'>
+                ✅ Your support has been recorded!
+              </p>";
+    }
+
+    if ($_GET["voted"] === "already") {
+        echo "<p style='text-align:center; color:#d97706; font-weight:bold;'>
+                👍 You have already supported this issue.
+              </p>";
+    }
+}
 if (!isset($_SESSION["user_id"])) {
     header("Location: login.html");
     exit;
@@ -117,6 +131,7 @@ $result = $conn->query($sql);
     <nav>
     <a href="index.html">Home</a>
     <a href="report.html">Report Issue</a>
+    <a href="my_reports.php">My Reports</a>
     <a href="php/logout.php">Logout</a>
 </nav>
 </header>
@@ -124,7 +139,7 @@ $result = $conn->query($sql);
 
 <main class="dashboard">
 
-    <h2>Campus Issues</h2>
+    <h2>Campus Issues</h2>>.
     <p style="text-align: center;">
     Welcome, 
     <strong>
