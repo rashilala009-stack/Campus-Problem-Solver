@@ -70,6 +70,19 @@ Campus-Problem-Solver/
 ## 🎯 Purpose
 
 The project is designed to provide a centralized platform where students can report campus problems and collectively prioritize important issues through voting.
+## 📸 Screenshots
+
+### Home Page
+
+![Home Page](screenshots/home.png)
+
+### Student Login
+
+![Student Login](screenshots/login.png)
+
+### Issue Dashboard
+
+![Issue Dashboard](screenshots/dashboard.png)
 
 ## 👩‍💻 Author
 
