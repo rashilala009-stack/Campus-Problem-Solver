@@ -1,41 +1,71 @@
-# Campus Problem Solver
+# Campus Problem Solver 🏫
 
-A full-stack web application that allows students to report, view, and prioritize campus problems through community voting.
+A full-stack web application designed to help students report, prioritize, and track problems across their campus.
+
+## 🎯 Problem Statement
+
+Campus issues such as broken fans, water leakage, Wi-Fi problems, cleanliness, parking, electricity, hostel issues, and other facilities may be difficult to report and track efficiently.
+
+**Campus Problem Solver** provides a centralized platform where students can report issues and collectively prioritize them through community voting, while administrators can manage and track their resolution.
 
 ## 🚀 Features
 
+### 👨‍🎓 Student Features
+
 - Student registration and login
-- Secure password hashing
-- Session-based authentication
-- Campus issue reporting
-- Issue categories and locations
+- Secure authentication with session management
+- Report campus issues with:
+  - Title
+  - Category
+  - Location
+  - Description
+  - Photo
 - Anonymous issue reporting
-- Photo upload for reported problems
-- Community voting system
-- Priority-based issue sorting
-- Issue status tracking
-- MySQL database integration
-- Logout and protected dashboard
+- View reported campus issues
+- Vote on important issues
+- One-vote-per-student protection
+- Track issue status
 
-## 🛠️ Technologies Used
+### 👨‍💼 Admin Features
 
-- HTML5
-- CSS3
-- JavaScript
-- PHP
-- MySQL
-- XAMPP
-- Git & GitHub
+- Admin authentication
+- View reported campus issues
+- Monitor community votes
+- Update issue status
+- Manage issue resolution workflow
+
+### 🔐 Security Features
+
+- Password hashing using PHP
+- Prepared SQL statements
+- Session-based authentication
+- Server-side input validation
+- File type and size validation
+- Secure image upload handling
+- Role-based authorization
+
+## 🛠️ Tech Stack
+
+| Technology | Purpose |
+|---|---|
+| HTML | Structure |
+| CSS | Styling and responsive UI |
+| JavaScript | Client-side interactions |
+| PHP | Backend and server-side logic |
+| MySQL | Database management |
+| XAMPP | Local development environment |
 
 ## 📂 Project Structure
 
+```text
 Campus-Problem-Solver/
 │
 ├── index.html
 ├── login.html
 ├── register.html
-├── report.html
 ├── dashboard.php
+├── report.html
+├── admin.php
 │
 ├── css/
 │   └── style.css
@@ -49,27 +79,59 @@ Campus-Problem-Solver/
 │   ├── register.php
 │   ├── logout.php
 │   ├── submit_issue.php
-│   └── vote.php
+│   ├── vote.php
+│   └── update_status.php
 │
-└── database/
-    └── database.sql
+├── uploads/
+│
+└── screenshots/
+```
 
 ## ⚙️ How to Run Locally
 
-1. Install XAMPP.
-2. Start Apache and MySQL.
-3. Place the project inside the configured Apache document root:
-   `C:\new\htdocs\`.
-4. Create a MySQL database named:
-   `campus_problem_solver`
-5. Import the SQL file from the `database` folder.
-6. Configure the database credentials in:
-   `php/db.php`
-7. Open the project in a browser.
+### 1. Install XAMPP
 
-## 🎯 Purpose
+Install XAMPP and start:
 
-The project is designed to provide a centralized platform where students can report campus problems and collectively prioritize important issues through voting.
+- Apache
+- MySQL
+
+### 2. Place the Project
+
+Copy the project into your XAMPP `htdocs` directory.
+
+### 3. Create the Database
+
+Open:
+
+```text
+http://localhost/phpmyadmin/
+```
+
+Create a database named:
+
+```text
+campus_problem_solver
+```
+
+Import the project's SQL database.
+
+### 4. Configure Database Connection
+
+Update the database credentials in:
+
+```text
+php/db.php
+```
+
+### 5. Open the Application
+
+Visit:
+
+```text
+http://localhost/Campus-Problem-Solver/
+```
+
 ## 📸 Screenshots
 
 ### Home Page
@@ -84,6 +146,25 @@ The project is designed to provide a centralized platform where students can rep
 
 ![Issue Dashboard](screenshots/dashboard.png)
 
+## 🌱 Future Improvements
+
+- Email notifications for issue updates
+- Advanced issue filtering and search
+- Issue priority levels
+- Analytics dashboard
+- Improved mobile responsiveness
+- Cloud deployment
+- Additional role-based features
+
 ## 👩‍💻 Author
 
-BCA Student | Full-Stack Web Development Project
+**Anshika Srivastava**
+
+BCA Student | Aspiring Software Developer
+
+- GitHub: [rashilala009-stack](https://github.com/rashilala009-stack)
+- LinkedIn: [Anshika Srivastava](https://linkedin.com/in/anshika-srivastava-515b61360)
+
+---
+
+⭐ If you find this project useful, consider giving it a star!
