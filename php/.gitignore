@@ -1,6 +1,15 @@
+# Database credentials
+php/db.php
+
+# User-uploaded files
 uploads/*
 !uploads/.gitkeep
 
+# Local XAMPP files
 xampp/
+
+# Logs
 *.log
+
+# macOS files
 .DS_Store
